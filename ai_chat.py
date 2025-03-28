@@ -14,9 +14,9 @@ from openai import (
 
 from logger import logger
 
-def ask_deepseek(question, file_path=None):
+def ask_openai_router(question, file_path=None):
     """
-    Send a question and optionally a Python file to API using OpenAI SDK
+    Send a question and optionally a Python file to API using OpenAI SDK through OpenRouter
     """
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",

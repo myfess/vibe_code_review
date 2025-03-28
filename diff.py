@@ -3,7 +3,7 @@ Pavlov Dima
 """
 
 import sys
-from typing import List
+from typing import List, Tuple
 from git_subprocess import run_git_command, is_git_repo, is_merge_commit
 from logger import logger
 
@@ -136,3 +136,30 @@ def get_commit_changes(repo_path: str) -> str:
     ])
 
     return run_git_command(base_command, repo_path)
+
+def get_last_commits(repo_path: str, count: int = 10) -> List[Tuple[str, str, str]]:
+    """
+    Get information about the last N commits
+
+    Args:
+        repo_path: Path to git repository
+        count: Number of commits to get (default: 10)
+
+    Returns:
+        List[Tuple[str, str, str]]: List of tuples containing (time, author, message) for each commit
+    """
+    if not is_git_repo(repo_path):
+        logger.log(f"Error: {repo_path} is not a git repository")
+        sys.exit(1)
+
+    # Format: %ad - author date, %an - author name, %s - commit message
+    commit_command = ["git", "log", f"-{count}", "--format=%ad|%an|%s", "--date=iso-local"]
+    output = run_git_command(commit_command, repo_path)
+
+    commits = []
+    for line in output.split('\n'):
+        if line.strip():
+            time, author, message = line.split('|', 2)
+            commits.append((time, author, message))
+
+    return commits

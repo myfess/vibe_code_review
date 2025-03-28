@@ -1,6 +1,6 @@
 import os
 from diff import get_commit_changes, is_git_repo, get_changed_files_list
-from ai_chat import ask_deepseek
+from ai_chat import ask_openai_router
 from html_writer import save_review_to_html, open_in_chrome
 from gpt_prompts import REVIEW_PROMPT
 from git_subprocess import checkout_branch, pull_branch
@@ -63,7 +63,7 @@ def review_last_commit(repo_path: str) -> str:
         file_path = repo_path + '/' + files_list[0]
 
     # Get AI review
-    review = ask_deepseek(prompt, file_path)
+    review = ask_openai_router(prompt, file_path)
     if review is None:
         return "Error: Could not get AI review response"
     return review

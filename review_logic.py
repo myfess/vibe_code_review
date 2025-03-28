@@ -1,6 +1,6 @@
 import os
 from diff import get_commit_changes, is_git_repo, get_changed_files_list
-from ai_chat import ask_deepseek
+from ai_chat import ask_openai_router
 from html_writer import save_review_to_html, open_in_chrome
 from gpt_prompts import REVIEW_PROMPT
 from git_subprocess import checkout_branch, pull_branch
@@ -29,48 +29,65 @@ def review_last_commit(repo_path: str) -> str:
     """
     Get changes from the last commit and send them for AI code review
     """
+    logger.log(f"Starting review of last commit in repository: {repo_path}")
+
     if not os.path.exists(repo_path):
-        return f"Error: Path {repo_path} does not exist"
+        error_msg = f"Error: Path {repo_path} does not exist"
+        logger.log(error_msg)
+        return error_msg
 
     if not is_git_repo(repo_path):
-        return f"Error: {repo_path} is not a git repository"
+        error_msg = f"Error: {repo_path} is not a git repository"
+        logger.log(error_msg)
+        return error_msg
 
+    logger.log("Getting commit changes...")
     changes = get_commit_changes(repo_path)
 
     if not changes.strip():
-        return "No changes found in the last commit"
+        msg = "No changes found in the last commit"
+        logger.log(msg)
+        return msg
 
+    logger.log("Preparing review prompt...")
     prompt = REVIEW_PROMPT.format(changes=changes)
 
     file_path = None
     files_list = get_changed_files_list(repo_path)
     if files_list:
         file_path = repo_path + '/' + files_list[0]
+        logger.log(f"Using file context from: {file_path}")
 
-    review = ask_deepseek(prompt, file_path)
+    logger.log("Requesting AI review...")
+    review = ask_openai_router(prompt, file_path)
     if review is None:
-        return "Error: Could not get AI review response"
+        error_msg = "Error: Could not get AI review response"
+        logger.log(error_msg)
+        return error_msg
+
+    logger.log("Successfully received AI review")
     return review
 
-def run_code_review(repo_path: str, branch_name: str) -> str:
+def run_code_review(repo_path: str) -> str:
     """
     Main function to run the code review process
     """
-    if not repo_path:
-        return "Error: REPO_PATH environment variable is not set"
+    logger.log(f"Starting code review process for repository: {repo_path}")
 
-    if not branch_name:
-        return "Error: GIT_BRANCH environment variable is not set"
-
-    if not setup_git_branch(repo_path, branch_name):
-        return "Error: Failed to setup git branch"
-
+    logger.log("Getting review from last commit...")
     review = review_last_commit(repo_path)
+    if review.startswith("Error:"):
+        logger.log(f"Error during review: {review}")
+        return review
+    logger.log("Successfully received review from last commit")
 
-    # Save review to HTML file
+    logger.log("Saving review to HTML file...")
     output_file = save_review_to_html(review)
+    logger.log(f"Review saved to: {output_file}")
 
-    # Open review in Chrome browser
+    logger.log("Opening review in Chrome browser...")
     open_in_chrome(output_file)
+    logger.log("Review opened in Chrome browser")
 
+    logger.log("Code review process completed successfully")
     return review
