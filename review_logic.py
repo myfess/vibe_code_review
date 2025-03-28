@@ -8,10 +8,13 @@ from logger import logger
 
 def setup_git_branch(repo_path: str, branch_name: str) -> bool:
     """
-    Setup git branch by checking out and pulling latest changes
+    Setup git branch by pulling latest changes, checking out, and pulling again
     """
     if not branch_name:
         logger.log("Error: Branch name is not specified")
+        return False
+
+    if not pull_branch(repo_path):
         return False
 
     if not checkout_branch(repo_path, branch_name):

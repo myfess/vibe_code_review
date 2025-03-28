@@ -94,10 +94,18 @@ def checkout_branch(repo_path: str, branch_name: str) -> bool:
         bool: True if checkout successful, False otherwise
     """
     try:
+        # Get current branch name
+        current_branch = run_git_command(["git", "rev-parse", "--abbrev-ref", "HEAD"], repo_path).strip()
+
+        if current_branch == branch_name:
+            logger.log(f"Already on branch '{branch_name}'")
+            return True
+
         run_git_command(["git", "checkout", branch_name], repo_path)
+        logger.log(f"Successfully checked out to branch '{branch_name}'")
         return True
     except Exception as e:
-        logger.log(f"Error checking out branch {branch_name}: {str(e)}")
+        logger.log(f"Error checking out branch '{branch_name}': {str(e)}")
         return False
 
 def pull_branch(repo_path: str) -> bool:
@@ -111,7 +119,9 @@ def pull_branch(repo_path: str) -> bool:
         bool: True if pull successful, False otherwise
     """
     try:
+        logger.log("Starting git pull operation...")
         run_git_command(["git", "pull"], repo_path)
+        logger.log("Git pull operation completed successfully")
         return True
     except Exception as e:
         logger.log(f"Error pulling latest changes: {str(e)}")

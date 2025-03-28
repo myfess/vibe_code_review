@@ -62,15 +62,15 @@ def open_in_chrome(file_path: str) -> None:
     file_url = 'file:///' + abs_path.replace('\\', '/').replace(' ', '%20')
 
     try:
-        # List of possible Chrome paths on Windows
+        # Get Chrome paths from environment variables
         chrome_paths = [
-            'C:/Program Files/Google Chrome/Application/chrome.exe',
-            'C:/Program Files (x86)/Google Chrome/Application/chrome.exe',
-            os.path.expandvars('%LocalAppData%/Google/Chrome/Application/chrome.exe')
+            os.getenv('CHROME_PATH_PROGRAM_FILES'),
+            os.getenv('CHROME_PATH_PROGRAM_FILES_X86'),
+            os.getenv('CHROME_PATH_LOCAL_APP_DATA')
         ]
 
-        # Try each Chrome path
-        for chrome_path in chrome_paths:
+        # Filter out None values and try each Chrome path
+        for chrome_path in filter(None, chrome_paths):
             if os.path.exists(chrome_path):
                 browser = webbrowser.get(f'"{chrome_path}" %s')
                 browser.open(file_url)
