@@ -2,10 +2,10 @@
 Pavlov Dima
 """
 
-import os
 import sys
 from typing import List
 from git_subprocess import run_git_command, is_git_repo, is_merge_commit
+from logger import logger
 
 def get_changed_files_output(repo_path: str) -> str:
     """
@@ -18,7 +18,7 @@ def get_changed_files_output(repo_path: str) -> str:
         str: Git diff output
     """
     if not is_git_repo(repo_path):
-        print(f"Error: {repo_path} is not a git repository")
+        logger.log(f"Error: {repo_path} is not a git repository")
         sys.exit(1)
 
     if is_merge_commit(repo_path):
@@ -62,7 +62,7 @@ def get_last_commit_info(repo_path: str) -> str:
         str: Formatted commit information
     """
     if not is_git_repo(repo_path):
-        print(f"Error: {repo_path} is not a git repository")
+        logger.log(f"Error: {repo_path} is not a git repository")
         sys.exit(1)
 
     commit_command = ["git", "log", "-1",
@@ -118,7 +118,7 @@ def get_commit_changes(repo_path: str) -> str:
         str: Formatted diff output showing the actual changed code
     """
     if not is_git_repo(repo_path):
-        print(f"Error: {repo_path} is not a git repository")
+        logger.log(f"Error: {repo_path} is not a git repository")
         sys.exit(1)
 
     # Base command to get changes
@@ -136,37 +136,3 @@ def get_commit_changes(repo_path: str) -> str:
     ])
 
     return run_git_command(base_command, repo_path)
-
-def main():
-    repo_path = str(os.getenv('REPO_PATH'))
-
-    if not os.path.exists(repo_path):
-        print(f"Error: Path {repo_path} does not exist")
-        sys.exit(1)
-
-    if not is_git_repo(repo_path):
-        print(f"Error: {repo_path} is not a git repository")
-        sys.exit(1)
-
-    # Get and display commit info
-    commit_info = get_last_commit_info(repo_path)
-    print(commit_info)
-
-    # Get and display changed files
-    changed_files_output = get_changed_files_output(repo_path)
-    print(format_file_status(changed_files_output))
-
-    # Get list of changed files
-    files_list = get_changed_files_list(repo_path)
-    if files_list:
-        print("\nСписок измененных файлов:")
-        for file in files_list:
-            print(f"- {file}")
-
-        print("\nИзменения в коде:")
-        print("-" * 40)
-        changes = get_commit_changes(repo_path)
-        print(changes)
-
-if __name__ == "__main__":
-    main()

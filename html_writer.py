@@ -1,6 +1,7 @@
 import os
 import glob
 import webbrowser
+from logger import logger
 
 def get_next_file_number(results_dir: str) -> int:
     """Get the next available file number in the results directory"""
@@ -51,7 +52,7 @@ def open_in_chrome(file_path: str) -> None:
         file_path: Path to the HTML file to open
     """
     if not os.path.exists(file_path):
-        print(f"Error: File {file_path} does not exist")
+        logger.log(f"Error: File {file_path} does not exist")
         return
 
     # Convert to absolute path if needed
@@ -73,13 +74,13 @@ def open_in_chrome(file_path: str) -> None:
             if os.path.exists(chrome_path):
                 browser = webbrowser.get(f'"{chrome_path}" %s')
                 browser.open(file_url)
-                print(f"Opened in Chrome: {file_url}")
+                logger.log(f"Opened in Chrome: {file_url}")
                 return
 
         # If Chrome not found, try default browser
-        print("Chrome not found, trying default browser...")
+        logger.log("Chrome not found, trying default browser...")
         webbrowser.open(file_url)
-        print(f"Opened in default browser: {file_url}")
+        logger.log(f"Opened in default browser: {file_url}")
     except Exception as e:
-        print(f"Error opening browser: {str(e)}")
-        print(f"Try opening this URL manually: {file_url}")
+        logger.log(f"Error opening browser: {str(e)}")
+        logger.log(f"Try opening this URL manually: {file_url}")

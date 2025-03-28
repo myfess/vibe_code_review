@@ -6,6 +6,7 @@ import subprocess
 import sys
 import locale
 from typing import List
+from logger import logger
 
 def run_git_command(command: List[str], repo_path: str, encoding: str = 'utf-8') -> str:
     """
@@ -28,8 +29,8 @@ def run_git_command(command: List[str], repo_path: str, encoding: str = 'utf-8')
                               cwd=repo_path)
 
         if result.returncode != 0:
-            print(f"Error executing git command: {' '.join(command)}")
-            print(result.stderr)
+            logger.log(f"Error executing git command: {' '.join(command)}")
+            logger.log(result.stderr)
             sys.exit(1)
 
         return result.stdout
@@ -96,7 +97,7 @@ def checkout_branch(repo_path: str, branch_name: str) -> bool:
         run_git_command(["git", "checkout", branch_name], repo_path)
         return True
     except Exception as e:
-        print(f"Error checking out branch {branch_name}: {str(e)}")
+        logger.log(f"Error checking out branch {branch_name}: {str(e)}")
         return False
 
 def pull_branch(repo_path: str) -> bool:
@@ -113,5 +114,5 @@ def pull_branch(repo_path: str) -> bool:
         run_git_command(["git", "pull"], repo_path)
         return True
     except Exception as e:
-        print(f"Error pulling latest changes: {str(e)}")
+        logger.log(f"Error pulling latest changes: {str(e)}")
         return False
