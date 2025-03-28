@@ -1,7 +1,7 @@
 import os
 import glob
 import webbrowser
-from logger import logger
+from src.utils.logger import logger
 
 def get_next_file_number(results_dir: str) -> int:
     """Get the next available file number in the results directory"""
@@ -31,7 +31,7 @@ def save_review_to_html(review: str, results_dir: str = 'results') -> str:
     output_file = os.path.join(results_dir, f"{next_number}.html")
 
     # Read the HTML template
-    template_path = os.path.join(os.path.dirname(__file__), 'template.html')
+    template_path = os.path.join(os.path.dirname(__file__), 'static/template.html')
     with open(template_path, 'r', encoding='utf-8') as f:
         template = f.read()
 

@@ -1,10 +1,10 @@
 import os
-from diff import get_commit_changes, is_git_repo, get_changed_files_list
-from ai_chat import ask_openai_router
-from html_writer import save_review_to_html, open_in_chrome
-from gpt_prompts import REVIEW_PROMPT
-from git_subprocess import checkout_branch, pull_branch
-from logger import logger
+from src.git.diff import get_commit_changes, is_git_repo, get_changed_files_list
+from src.ai.ai_chat import ask_openai_router
+from src.html_writer import save_review_to_html, open_in_chrome
+from src.gpt_prompts import REVIEW_PROMPT
+from src.git.git_subprocess import checkout_branch, pull_branch
+from src.utils.logger import logger
 
 def setup_git_branch(repo_path: str, branch_name: str) -> bool:
     """
@@ -55,6 +55,9 @@ def review_last_commit(repo_path: str) -> str:
     file_path = None
     files_list = get_changed_files_list(repo_path)
     if files_list:
+        for file in files_list:
+            file_path = repo_path + '/' + file
+            logger.log(f"Changed file: {file_path}")
         file_path = repo_path + '/' + files_list[0]
         logger.log(f"Using file context from: {file_path}")
 

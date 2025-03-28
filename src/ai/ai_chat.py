@@ -12,7 +12,7 @@ from openai import (
 )
 
 
-from logger import logger
+from src.utils.logger import logger
 
 def ask_openai_router(question, file_path=None):
     """

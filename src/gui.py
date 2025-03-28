@@ -1,9 +1,9 @@
 import os
 import tkinter as tk
 from tkinter import ttk, messagebox
-from review_logic import run_code_review, setup_git_branch
-from logger import logger
-from diff import get_last_commits
+from src.review_logic import run_code_review, setup_git_branch
+from src.utils.logger import logger
+from src.git.diff import get_last_commits
 import subprocess
 
 
@@ -264,14 +264,3 @@ class App:
         finally:
             # Always restore UI state
             self.set_processing_state(False)
-
-def main():
-    root = tk.Tk()
-    # pylint: disable=unused-variable
-    # ruff: noqa: F841
-    app = App(root)
-    # pylint: enable=unused-variable
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
