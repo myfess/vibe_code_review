@@ -19,7 +19,7 @@ def ask_openai_router(question, file_path=None):
     Send a question and optionally a Python file to API using OpenAI SDK through OpenRouter
     """
     client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
+        base_url=os.getenv('OPENROUTER_API_URL'),
         api_key=os.getenv('OPENROUTER_API_KEY'),
     )
 

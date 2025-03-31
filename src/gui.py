@@ -4,14 +4,13 @@ from tkinter import ttk, messagebox
 from src.review_logic import run_code_review, setup_git_branch
 from src.utils.logger import logger
 from src.git.diff import get_last_commits
-import subprocess
 
 
 class App:
     def __init__(self, root):
         self.root = root
         self.root.title("AI Code Review")
-        self.root.geometry("1200x800")  # Increased window height from 600 to 800
+        self.root.geometry("1400x800")  # Increased window width from 1200 to 1400
 
         # Create main container frame
         container = ttk.Frame(root)
@@ -92,19 +91,23 @@ class App:
         tree_frame.pack(fill=tk.BOTH, expand=True)
 
         # Create Treeview for commits
-        self.commits_tree = ttk.Treeview(tree_frame, columns=("selected", "time", "author", "message"), show="headings")
+        self.commits_tree = ttk.Treeview(
+            tree_frame, columns=("selected", "time", "author", "message", "hash"), show="headings"
+        )
 
         # Configure columns
         self.commits_tree.heading("selected", text="")
         self.commits_tree.heading("time", text="Time")
         self.commits_tree.heading("author", text="Author")
         self.commits_tree.heading("message", text="Message")
+        self.commits_tree.heading("hash", text="Hash")
 
         # Set column widths
         self.commits_tree.column("selected", width=30, anchor="center")
         self.commits_tree.column("time", width=150)
         self.commits_tree.column("author", width=150)
         self.commits_tree.column("message", width=300)
+        self.commits_tree.column("hash", width=100)
 
         # Add scrollbar for commits tree
         commits_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.commits_tree.yview)
@@ -178,9 +181,15 @@ class App:
 
             # Get and display commits
             commits = get_last_commits(repo_path, count=20)  # Request 20 commits instead of default 10
-            for time, author, message in commits:
+            for time, author, message, commit_hash in commits:
                 # Add checkbox (☐) as first column
-                self.commits_tree.insert("", "end", values=("☐", time, author, message))
+                self.commits_tree.insert("", "end", values=("☐", time, author, message, commit_hash))
+
+            # Automatically check the first commit
+            first_item = self.commits_tree.get_children()[0]
+            values = list(self.commits_tree.item(first_item)['values'])
+            values[0] = "☒"  # Check the first commit
+            self.commits_tree.item(first_item, values=values)
 
         except Exception as e:
             error_msg = f"Failed to get commits: {str(e)}"
@@ -195,7 +204,7 @@ class App:
         for item in self.commits_tree.get_children():
             values = self.commits_tree.item(item)['values']
             if values[0] == "☒":  # Checked checkbox
-                selected.append((values[1], values[2], values[3]))  # (time, author, message)
+                selected.append((values[1], values[2], values[3], values[4]))  # (time, author, message, hash)
         return selected
 
     def checkout_branch(self):
@@ -248,6 +257,9 @@ class App:
         self.log_message("Starting code review process...")
         self.log_message(f"Repository: {repo_path}")
         self.log_message(f"Selected commits: {len(selected_commits)}")
+        self.log_message("Selected commit hashes:")
+        for _, _, _, commit_hash in selected_commits:
+            self.log_message(f"- {commit_hash}")
         self.set_processing_state(True)
 
         try:

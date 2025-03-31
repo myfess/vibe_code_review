@@ -2,7 +2,7 @@ import os
 from src.git.diff import get_commit_changes, is_git_repo, get_changed_files_list
 from src.ai.ai_chat import ask_openai_router
 from src.html_writer import save_review_to_html, open_in_chrome
-from src.gpt_prompts import REVIEW_PROMPT
+from src.ai.gpt_prompts import REVIEW_PROMPT
 from src.git.git_subprocess import checkout_branch, pull_branch
 from src.utils.logger import logger
 
@@ -50,7 +50,10 @@ def review_last_commit(repo_path: str) -> str:
         return msg
 
     logger.log("Preparing review prompt...")
-    prompt = REVIEW_PROMPT.format(changes=changes)
+    prompt = REVIEW_PROMPT.format(
+        changes=changes,
+        language=os.getenv('REVIEW_LANGUAGE')
+    )
 
     file_path = None
     files_list = get_changed_files_list(repo_path)
